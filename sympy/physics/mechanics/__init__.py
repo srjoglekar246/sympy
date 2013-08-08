@@ -11,30 +11,34 @@ __all__ = []
 #    determine which names are imported when
 #    "from sympy.physics.mechanics import *" is done.
 
-from . import kane
-from .kane import *
-__all__.extend(kane.__all__)
+#import kane
+#from kane import *
+#__all__.extend(kane.__all__)
 
-from . import rigidbody
-from .rigidbody import *
+import rigidbody
+from rigidbody import *
 __all__.extend(rigidbody.__all__)
 
-from . import functions
-from .functions import *
+import functions
+from functions import *
 __all__.extend(functions.__all__)
 
-from . import particle
-from .particle import *
-__all__.extend(particle.__all__)
+#import particle
+#from particle import *
+#__all__.extend(particle.__all__)
 
-from . import point
-from .point import *
+import point
+from point import *
 __all__.extend(point.__all__)
 
-from . import essential
-from .essential import *
+import essential
+from essential import *
 __all__.extend(essential.__all__)
 
-from . import lagrange
-from .lagrange import *
+#import essential
+#from essential import *
+#__all__.extend(essential.__all__)
+
+import lagrange
+from lagrange import *
 __all__.extend(lagrange.__all__)

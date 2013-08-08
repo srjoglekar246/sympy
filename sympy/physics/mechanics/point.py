@@ -1,5 +1,3 @@
-from __future__ import print_function, division
-
 __all__ = ['Point']
 
 from sympy.physics.mechanics.essential import _check_frame, _check_vector
