@@ -7,7 +7,7 @@ from sympy.core.basic import Basic
 from sympy.core.singleton import Singleton, S
 from sympy.core.evalf import EvalfMixin
 from sympy.core.numbers import Float
-from sympy.core.compatibility import iterable, with_metaclass
+from sympy.core.compatibility import iterable, with_metaclass, ordered
 from sympy.core.evaluate import global_evaluate
 from sympy.core.decorators import deprecated
 
@@ -212,7 +212,6 @@ class Set(Basic):
         Returns True if 'self' is a subset of 'other'.
 
         >>> from sympy import Interval
-
         >>> Interval(0, 0.5).is_subset(Interval(0, 1))
         True
         >>> Interval(0, 1).is_subset(Interval(0, 1, left_open=True))
@@ -224,12 +223,27 @@ class Set(Basic):
         else:
             raise ValueError("Unknown argument '%s'" % other)
 
+    def is_proper_subset(self, other):
+        """
+        Returns True if 'self' is a proper subset of 'other'.
+
+        >>> from sympy import Interval
+        >>> Interval(0, 0.5).is_proper_subset(Interval(0, 1))
+        True
+        >>> Interval(0, 1).is_proper_subset(Interval(0, 1))
+        False
+
+        """
+        if isinstance(other, Set):
+            return self != other and self.is_subset(other)
+        else:
+            raise ValueError("Unknown argument '%s'" % other)
+
     def is_superset(self, other):
         """
         Returns True if 'self' is a superset of 'other'.
 
         >>> from sympy import Interval
-
         >>> Interval(0, 0.5).is_superset(Interval(0, 1))
         False
         >>> Interval(0, 1).is_superset(Interval(0, 1, left_open=True))
@@ -238,6 +252,22 @@ class Set(Basic):
         """
         if isinstance(other, Set):
             return other.is_subset(self)
+        else:
+            raise ValueError("Unknown argument '%s'" % other)
+
+    def is_proper_superset(self, other):
+        """
+        Returns True if 'self' is a proper superset of 'other'.
+
+        >>> from sympy import Interval
+        >>> Interval(0, 1).is_proper_superset(Interval(0, 0.5))
+        True
+        >>> Interval(0, 1).is_proper_superset(Interval(0, 1))
+        False
+
+        """
+        if isinstance(other, Set):
+            return self != other and self.is_superset(other)
         else:
             raise ValueError("Unknown argument '%s'" % other)
 
@@ -1371,12 +1401,12 @@ class FiniteSet(Set, EvalfMixin):
     Examples
     ========
 
-        >>> from sympy import FiniteSet
+    >>> from sympy import FiniteSet
 
-        >>> FiniteSet(1, 2, 3, 4)
-        {1, 2, 3, 4}
-        >>> 3 in FiniteSet(1, 2, 3, 4)
-        True
+    >>> FiniteSet(1, 2, 3, 4)
+    {1, 2, 3, 4}
+    >>> 3 in FiniteSet(1, 2, 3, 4)
+    True
 
     References
     ==========
@@ -1395,13 +1425,12 @@ class FiniteSet(Set, EvalfMixin):
 
             if len(args) == 0:
                 return EmptySet()
+        else:
+            args = list(map(sympify, args))
 
-
-        args = frozenset(args)  # remove duplicates
-        args = map(sympify, args)
-        args = frozenset(args)
+        args = list(ordered(frozenset(args)))
         obj = Basic.__new__(cls, *args)
-        obj._elements = args
+        obj._elements = frozenset(args)
         return obj
 
     def __iter__(self):
@@ -1535,13 +1564,13 @@ class FiniteSet(Set, EvalfMixin):
         return other.is_subset(self)
 
     def __gt__(self, other):
-        return self != other and self >= other
+        return self.is_proper_superset(other)
 
     def __le__(self, other):
         return self.is_subset(other)
 
     def __lt__(self, other):
-        return self != other and other >= self
+        return self.is_proper_subset(other)
 
 
 def imageset(*args):
