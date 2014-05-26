@@ -229,6 +229,8 @@ class Vector(AtomicExpr):
 
         """
 
+        if not isinstance(system, Symbol):
+            raise TypeError(str(system) + " is not a valid system")
         #base_vectors = system.base_vectors()
         base_vectors = (i, j, k)
         return Matrix([self.dot(unit_vec) for unit_vec in
@@ -248,8 +250,8 @@ class BaseVector(Vector, Dummy):
         if not (0 <= index <= 2 and index%1 == 0):
             raise ValueError("index must be 0, 1 or 2")
         if not isinstance(system, Symbol):
-            raise ValueError(str(system) + \
-                             " not a valid coordinate system instance")
+            raise TypeError(str(system) + \
+                            " not a valid coordinate system instance")
         if not isinstance(name, str):
             raise ValueError("name must be a valid string")
         #Initialize an object
@@ -304,7 +306,6 @@ class VectorAdd(Vector, Add):
         components = {}
         #Check each arg and simultaneously learn the components
         for arg in args:
-            print arg, arg.__class__
             if not (arg == 0 or isinstance(arg, Vector)):
                 raise TypeError(str(arg) +
                                 " cannot be interpreted as a vector")
@@ -457,18 +458,6 @@ def _func_over_vector(vect, func, args):
 Vector.Zero = VectorZero()
 
 #Just some hacks for now
-i = BaseVector(Symbol('R'), 0, 'R.x')
-j = BaseVector(Symbol('R'), 1, 'R.y')
-k = BaseVector(Symbol('R'), 2, 'R.z')
-
-
-if __name__ == '__main__':
-    from sympy import *
-    a = Symbol('a')
-    v = a * i + 4 * j - k
-    q = Symbol('q')
-    e = i*(sin(q) + cos(q))**2 + j
-    u1, u2, u3 = symbols('u1 u2 u3')
-    v1, v2, v3 = symbols('v1 v2 v3')
-    vect1 = u1*i + u2*j + u3*k
-    vect2 = v1*i + v2*j + v3*k
+i = BaseVector(Symbol('R'), 0, 'R.i')
+j = BaseVector(Symbol('R'), 1, 'R.j')
+k = BaseVector(Symbol('R'), 2, 'R.k')
