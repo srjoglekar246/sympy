@@ -1,9 +1,8 @@
 #from sympy.vector import express
 from sympy.core import Basic, Symbol
 from sympy import diff
-from vector import Vector
-from vector import i, j, k
-from scalar import x, y, z
+from sympy.vector.vector import Vector, i, j, k
+from sympy.vector.scalar import x, y, z
 
 
 class Del(Basic):

@@ -1,9 +1,7 @@
-from sympy.core.symbol import Symbol
-from sympy.core import sympify
-from sympy.core.numbers import Integer
+from sympy.core.symbol import Dummy
 
 
-class BaseScalar(Symbol):
+class BaseScalar(Dummy):
     """
     A coordinate symbol/base scalar associated with a coordinate
     system.
@@ -21,6 +19,8 @@ class BaseScalar(Symbol):
         if index not in range(0, 3):
             raise ValueError("Invalid index specified.")
         obj._id = (system, index)
+        obj._name = name
+
         return obj
 
     @property
@@ -41,8 +41,15 @@ class BaseScalar(Symbol):
     def __hash__(self):
         return tuple((self._id[0].__hash__(), self._id[1])).__hash__()
 
+    def __str__(self, printer=None):
+        return self._name
+
+    __repr__ = __str__
+    _sympystr = __str__
+
 
 #Just some hacks for now
+from sympy.core.symbol import Symbol
 x = BaseScalar(Symbol('R'), 0, 'R.x')
 y = BaseScalar(Symbol('R'), 1, 'R.y')
 z = BaseScalar(Symbol('R'), 2, 'R.z')

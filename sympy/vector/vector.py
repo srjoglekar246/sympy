@@ -4,15 +4,13 @@ from sympy.core.assumptions import StdFactKB
 from sympy.core.symbol import Dummy
 from sympy.core import S, Add, Mul, sympify, Pow, Symbol, count_ops
 from sympy.core.decorators import call_highest_priority, _sympifyit
-from sympy.core.expr import AtomicExpr
+from sympy.core.expr import Expr
 from sympy.core.numbers import Zero
 from sympy import diff, sqrt, ImmutableMatrix as Matrix
 #from sympy.vector.functions import express
 
-base_vectors = {}
 
-
-class Vector(AtomicExpr):
+class Vector(Expr):
     """
     Base class for all Vector classes.
     Ideally, neither this class nor any of its subclasses should be
@@ -134,9 +132,9 @@ class Vector(AtomicExpr):
         """
 
         #Check special cases
-        from deloperator import Del
-##        if not isinstance(other, Vector) or not isinstance(other, Del):
-##            raise TypeError(str(other) + " is not a vector or del operator")
+        from sympy.vector.deloperator import Del
+        if not isinstance(other, Vector) and not isinstance(other, Del):
+            raise TypeError(str(other) + " is not a vector or del operator")
         if self == Vector.Zero or other == Vector.Zero:
             return S(0)
 
@@ -260,9 +258,6 @@ class BaseVector(Vector, Dummy):
     """
 
     def __new__(cls, system, index, name):
-        #Check if the base vector is already in the cache
-        if (system, index) in base_vectors:
-            return base_vectors[(system, index)]
         #Verify arguments
         if not (0 <= index <= 2 and index%1 == 0):
             raise ValueError("index must be 0, 1 or 2")
@@ -284,8 +279,6 @@ class BaseVector(Vector, Dummy):
         assumptions['commutative'] = True
         obj._assumptions = StdFactKB(assumptions)
 
-        #Put the new object in the cache
-        base_vectors[(system, index)] = obj
 
         return obj
 
