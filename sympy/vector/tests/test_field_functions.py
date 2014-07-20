@@ -14,9 +14,9 @@ a, b, c = symbols('a b c')
 def test_del_operator():
 
     #Tests for curl
-    assert delop ^ Vector.zero == Vector.zero
-    assert delop.cross(Vector.zero) == Vector.zero
-    assert delop ^ i == Vector.zero
+    assert (delop ^ Vector.zero).doit() == Vector.zero
+    assert delop.cross(Vector.zero, True) == Vector.zero
+    assert (delop ^ i).doit() == Vector.zero
     assert delop.cross(2*y**2*j) == Vector.zero
     v = x*y*z * (i + j + k)
     assert delop ^ v == \
@@ -82,33 +82,33 @@ def test_product_rules():
     v = 4*i + x*y*z*k
 
     #First product rule
-    lhs = delop(f * g)
-    rhs = f * delop(g) + g * delop(f)
+    lhs = delop(f * g, doit = True)
+    rhs = (f * delop(g) + g * delop(f)).doit()
     assert simplify(lhs) == simplify(rhs)
 
     #Second product rule
-    lhs = delop(u & v)
+    lhs = delop(u & v, doit = True)
     rhs = (u ^ (delop ^ v)) + (v ^ (delop ^ u)) + \
-          ((u & delop)(v)) + ((v & delop)(u))
+          ((u & delop)(v)) + ((v & delop)(u)).doit()
     assert simplify(lhs) == simplify(rhs)
 
     #Third product rule
-    lhs = delop & (f*v)
-    rhs = (f * (delop & v)) + (v & (delop(f)))
+    lhs = (delop & (f*v)).doit()
+    rhs = (f * (delop & v)) + (v & (delop(f))).doit()
     assert simplify(lhs) == simplify(rhs)
 
     #Fourth product rule
-    lhs = delop & (u ^ v)
-    rhs = (v & (delop ^ u)) - (u & (delop ^ v))
+    lhs = (delop & (u ^ v)).doit()
+    rhs = ((v & (delop ^ u)) - (u & (delop ^ v))).doit()
     assert simplify(lhs) == simplify(rhs)
 
     #Fifth product rule
-    lhs = delop ^ (f * v)
-    rhs = ((delop(f)) ^ v) + (f * (delop ^ v))
+    lhs = (delop ^ (f * v)).doit()
+    rhs = ((delop(f)) ^ v) + (f * (delop ^ v)).doit()
     assert simplify(lhs) == simplify(rhs)
 
     #Sixth product rule
-    lhs = delop ^ (u ^ v)
-    rhs = u * (delop & v) - v * (delop & u) + \
-          (v & delop)(u) - (u & delop)(v)
+    lhs = (delop ^ (u ^ v)).doit()
+    rhs = (u * (delop & v) - v * (delop & u) +
+           (v & delop)(u) - (u & delop)(v)).doit()
     assert simplify(lhs) == simplify(rhs)

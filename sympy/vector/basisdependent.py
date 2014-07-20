@@ -3,6 +3,7 @@ from sympy.core.decorators import call_highest_priority, _sympifyit
 from sympy.core.assumptions import StdFactKB
 from sympy import factor as fctr, diff as df
 from sympy.core import S, Add, Mul, count_ops
+from sympy.core.numbers import Zero
 from sympy.core.expr import Expr
 
 
@@ -14,22 +15,18 @@ class BasisDependent(Expr):
     sympy.vector is dependent on the basis they are expressed in.
     """
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__radd__')
     def __add__(self, other):
         return self._add_func(self, other)
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__add__')
     def __radd__(self, other):
         return self._add_func(other, self)
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__rsub__')
     def __sub__(self, other):
         return self._add_func(self, -other)
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__sub__')
     def __rsub__(self, other):
         return self._add_func(other, -self)
@@ -162,8 +159,9 @@ class BasisDependent(Expr):
 
     def doit(self, **hints):
         """Calls .doit() on each term in the Dyadic"""
-        return sum([self.components[x].doit(**hints) * x for
-                    x in self.components])
+        doit_args = [self.components[x].doit(**hints) * x for
+                     x in self.components]
+        return self._add_func(*doit_args)
 
 
 class BasisDependentAdd(BasisDependent, Add):
@@ -184,7 +182,8 @@ class BasisDependentAdd(BasisDependent, Add):
                     arg = cls._add_func(*(arg.args))
                 else:
                     raise TypeError(str(arg) +
-                                    " cannot be interpreted correctly")
+                                    " cannot be interpreted correctly" +
+                                    "as a basis-dependent entity")
             #If argument is zero, ignore
             if arg == cls.zero:
                 continue
@@ -315,7 +314,6 @@ class BasisDependentZero(BasisDependent):
 
     __req__ = __eq__
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__radd__')
     def __add__(self, other):
         if isinstance(other, self._expr_type):
@@ -323,7 +321,6 @@ class BasisDependentZero(BasisDependent):
         else:
             raise TypeError("Invalid argument types for addition")
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__add__')
     def __radd__(self, other):
         if isinstance(other, self._expr_type):
@@ -331,7 +328,6 @@ class BasisDependentZero(BasisDependent):
         else:
             raise TypeError("Invalid argument types for addition")
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__rsub__')
     def __sub__(self, other):
         if isinstance(other, self._expr_type):
@@ -339,7 +335,6 @@ class BasisDependentZero(BasisDependent):
         else:
             raise TypeError("Invalid argument types for subtraction")
 
-    @_sympifyit('other', NotImplemented)
     @call_highest_priority('__sub__')
     def __rsub__(self, other):
         if isinstance(other, self._expr_type):
